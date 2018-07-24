@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.opengl.GLSurfaceView
 
 
-
 class MainActivity : AppCompatActivity() {
 
     private var mGLView: GLSurfaceView? = null
@@ -30,10 +29,11 @@ internal class MyGLSurfaceView(context: Context) : GLSurfaceView(context) {
         setEGLContextClientVersion(2)
 
         mRenderer = MyGLRenderer()
+        mRenderer.addSticker(GifTexImage2DObject(resources, R.drawable.sticker6))
 
         // Set the Renderer for drawing on the GLSurfaceView
         setRenderer(mRenderer)
 
-        renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
+//        renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
     }
 }
