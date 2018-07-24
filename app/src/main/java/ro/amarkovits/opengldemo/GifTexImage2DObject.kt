@@ -23,15 +23,8 @@ class GifTexImage2DObject(resources: Resources, gifId: Int) {
         gifTexImage2DProgram.initialize()
     }
 
-    fun draw(){
-        Log.d(TAG, "draw")
-        gifTexImage2DProgram.draw()
-    }
-
-    fun resize(width: Int, height: Int){
-        gifTexImage2DProgram.setDimensions(width/4, height/4)
-        gifTexImage2DProgram.setPosition(width/4,0)
-
+    fun draw(projectionMatrix: FloatArray){
+        gifTexImage2DProgram.draw(projectionMatrix)
     }
 
 }

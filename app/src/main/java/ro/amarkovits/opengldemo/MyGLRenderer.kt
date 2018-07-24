@@ -6,9 +6,14 @@ import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import javax.microedition.khronos.egl.EGLConfig
 import android.opengl.Matrix.frustumM
+import android.opengl.Matrix.orthoM
+import android.util.Log
+import java.util.*
 
 
 class MyGLRenderer : GLSurfaceView.Renderer {
+
+    val TAG = MyGLRenderer::class.java.simpleName
 
     private val mMVPMatrix = FloatArray(16)
     private val mProjectionMatrix = FloatArray(16)
@@ -40,7 +45,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 //        Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
 
         stickers.forEach {
-            it.draw()
+            it.draw(mProjectionMatrix)
         }
 
     }
@@ -48,14 +53,20 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
 
-//        val ratio = width.toFloat() / height.toFloat()
-//
-//        // this projection matrix is applied to object coordinates
-//        // in the onDrawFrame() method
-//        Matrix.frustumM(mProjectionMatrix, 0, -ratio, ratio, -1f, 1f, 3f, 7f)
+        val aspectRatio = if (width > height)
+            width.toFloat() / height.toFloat()
+        else
+            height.toFloat()/ width.toFloat()
 
-        stickers.forEach {
-            it.resize(width, height)
+        if (width > height) {
+            // Landscape
+            orthoM(mProjectionMatrix, 0, -aspectRatio, aspectRatio, -1f, 1f, -1f, 1f)
+        } else {
+            // Portrait or square
+            orthoM(mProjectionMatrix, 0, -1f, 1f, -aspectRatio, aspectRatio, -1f, 1f)
         }
+
+        Log.d(TAG, "mProjectionMatrix ${Arrays.toString(mProjectionMatrix)}")
+
     }
 }

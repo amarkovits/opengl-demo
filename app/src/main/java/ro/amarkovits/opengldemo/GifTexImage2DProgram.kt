@@ -1,6 +1,7 @@
 package ro.amarkovits.opengldemo
 
 import android.opengl.GLES20.*
+import android.util.Log
 import android.widget.ImageView
 import android.widget.ImageView.ScaleType.FIT_CENTER
 import android.widget.ImageView.ScaleType.FIT_XY
@@ -8,6 +9,11 @@ import org.intellij.lang.annotations.Language
 import pl.droidsonroids.gif.GifTexImage2D
 
 class GifTexImage2DProgram(private val gifTexImage2D: GifTexImage2D) {
+
+    private val TAG = GifTexImage2DProgram::class.java.simpleName
+
+    private val U_MATRIX = "u_Matrix"
+
     val height = gifTexImage2D.height
     val width = gifTexImage2D.width
     val currentFrameDuration = gifTexImage2D.getFrameDuration(gifTexImage2D.currentFrameIndex)
@@ -16,14 +22,19 @@ class GifTexImage2DProgram(private val gifTexImage2D: GifTexImage2D) {
     private var positionLocation = -1
     private var textureLocation = -1
     private var coordinateLocation = -1
+    private var uMatrixPosition = -1
 
     @Language("GLSL")
     private val vertexShaderCode = """
+        uniform mat4 u_matrix;
+
         attribute vec4 position;
         attribute vec4 coordinate;
+
         varying vec2 textureCoordinate;
+
         void main() {
-            gl_Position = position;
+            gl_Position = u_matrix * position;
             textureCoordinate = vec2(coordinate.s, 1.0 - coordinate.t);
         }
         """
@@ -59,6 +70,8 @@ class GifTexImage2DProgram(private val gifTexImage2D: GifTexImage2D) {
         positionLocation = glGetAttribLocation(program, "position")
         textureLocation = glGetUniformLocation(program, "texture")
         coordinateLocation = glGetAttribLocation(program, "coordinate")
+        uMatrixPosition = glGetUniformLocation(program, "u_matrix")
+        Log.d(TAG, "uMaxtrixPosition $uMatrixPosition")
 
         glActiveTexture(GL_TEXTURE0)
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, gifTexImage2D.width, gifTexImage2D.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null)
@@ -70,43 +83,9 @@ class GifTexImage2DProgram(private val gifTexImage2D: GifTexImage2D) {
         glVertexAttribPointer(positionLocation, 2, GL_FLOAT, false, 0, verticesBuffer)
     }
 
-    private var viewport = Viewport(0, 0, 0, 0)
 
-    fun setDimensions(screenWidth: Int, screenHeight: Int, scaleType: ImageView.ScaleType = FIT_CENTER) {
-        viewport = when (scaleType) {
-            FIT_XY -> Viewport(0, 0, screenWidth, screenHeight)
-            FIT_CENTER -> createFitCenterViewport(screenWidth, screenHeight)
-            else -> TODO("$scaleType is not yet supported")
-        }
-    }
-
-    fun setPosition(x: Int, y: Int){
-        viewport.offsetX = x
-        viewport.offsetY = y
-    }
-
-    private fun createFitCenterViewport(screenWidth: Int, screenHeight: Int): Viewport {
-        val screenAspectRatio = screenWidth / screenHeight.toFloat()
-        val mediaAspectRation = gifTexImage2D.width / gifTexImage2D.height.toFloat()
-
-        val scaleFactor = if (screenAspectRatio < mediaAspectRation) {
-            screenWidth / gifTexImage2D.width.toFloat()
-        } else {
-            screenHeight / gifTexImage2D.height.toFloat()
-        }
-
-        val viewportWidth = (gifTexImage2D.width * scaleFactor).toInt()
-        val viewportHeight = (gifTexImage2D.height * scaleFactor).toInt()
-
-        return Viewport(
-            (screenWidth - viewportWidth) / 2,
-            (screenHeight - viewportHeight) / 2,
-            viewportWidth, viewportHeight
-        )
-    }
-
-    fun draw() {
-        viewport.applyToGlWindow()
+    fun draw(projectionMatrix: FloatArray) {
+        glUniformMatrix4fv(uMatrixPosition, 1, false, projectionMatrix, 0)
         gifTexImage2D.glTexSubImage2D(GL_TEXTURE_2D, 0)
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
     }
@@ -114,8 +93,3 @@ class GifTexImage2DProgram(private val gifTexImage2D: GifTexImage2D) {
     fun destroy() = gifTexImage2D.recycle()
 }
 
-class Viewport(var offsetX: Int, var offsetY: Int, private val width: Int, private val height: Int) {
-    fun applyToGlWindow() {
-        glViewport(offsetX, offsetY, width, height)
-    }
-}
