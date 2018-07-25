@@ -59,6 +59,8 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     }
 
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
+        Log.d(TAG, "onSurfaceChanged $width $height")
+
         GLES20.glViewport(0, 0, width, height)
 
         orthoM(mProjectionMatrix, 0, 0f, width.toFloat(), height.toFloat(), 0f, -1f, 1f)
@@ -82,6 +84,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
             it.isSelectable(x, y)
         }
         if (selectedSticker != null) {
+            Log.d(TAG, "selectedSticker=${selectedSticker?.name}")
             //bring the selected sticker to the front
             stickers.remove(selectedSticker!!)
             stickers.add(selectedSticker!!)
@@ -91,11 +94,11 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     }
 
     fun onTouchMove(x: Float, y: Float) {
-        Log.d(TAG, "onTouchMove $x $y")
+//        Log.d(TAG, "onTouchMove $x $y")
         if (selectedSticker != null) {
             val dx = x - touchStartPoint.x
             val dy = y - touchStartPoint.y
-            if (Math.abs(dx) > minMovement && Math.abs(dy)> minMovement) {
+            if (Math.abs(dx) > minMovement || Math.abs(dy)> minMovement) {
                 selectedSticker?.translate(dx, dy)
                 //update touch start position so new translation is relative to this point
                 touchStartPoint.set(x, y)

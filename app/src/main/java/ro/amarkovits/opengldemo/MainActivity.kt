@@ -6,6 +6,10 @@ import android.os.Bundle
 import android.opengl.GLSurfaceView
 import android.support.v4.view.MotionEventCompat
 import android.view.MotionEvent
+import android.view.View
+import pl.droidsonroids.gif.GifOptions
+import pl.droidsonroids.gif.GifTexImage2D
+import pl.droidsonroids.gif.InputSource
 
 
 class MainActivity : AppCompatActivity() {
@@ -31,28 +35,39 @@ internal class MyGLSurfaceView(context: Context) : GLSurfaceView(context) {
         setEGLContextClientVersion(2)
 
         mRenderer = MyGLRenderer()
-        mRenderer.addSticker(Sticker(resources, R.drawable.sticker6, 0.2f, 0.2f))
-        mRenderer.addSticker(Sticker(resources, R.drawable.sticker1, 0.7f, 0.7f))
+        mRenderer.addSticker(Sticker(GifTexImage2D(InputSource.ResourcesSource(resources, R.drawable.sticker1), GifOptions()), "sticker1"))
+        mRenderer.addSticker(Sticker(GifTexImage2D(InputSource.ResourcesSource(resources, R.drawable.sticker2), GifOptions()), "sticker2"))
+        mRenderer.addSticker(Sticker(GifTexImage2D(InputSource.ResourcesSource(resources, R.drawable.sticker3), GifOptions()), "sticker3"))
+        mRenderer.addSticker(Sticker(GifTexImage2D(InputSource.ResourcesSource(resources, R.drawable.sticker4), GifOptions()), "sticker4"))
+        mRenderer.addSticker(Sticker(GifTexImage2D(InputSource.ResourcesSource(resources, R.drawable.sticker5), GifOptions()), "sticker5"))
 
         // Set the Renderer for drawing on the GLSurfaceView
         setRenderer(mRenderer)
 
-//        renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         val action = event?.actionMasked
-        when(action){
-            MotionEvent.ACTION_DOWN->{
-                mRenderer.onTouchDown(event.x, event.y)
+        val screenLocation = intArrayOf(0, 0)
+        getLocationOnScreen(screenLocation)
+        when (action) {
+            MotionEvent.ACTION_DOWN -> {
+                queueEvent {
+                    mRenderer.onTouchDown(event.x-screenLocation[0], event.y-screenLocation[1])
+                }
             }
-            MotionEvent.ACTION_MOVE->{
-                mRenderer.onTouchMove(event.x, event.y)
+            MotionEvent.ACTION_MOVE -> {
+                queueEvent {
+                    mRenderer.onTouchMove(event.x-screenLocation[0], event.y-screenLocation[1])
+                }
             }
-            MotionEvent.ACTION_UP->{
-                mRenderer.onTouchUp(event.x, event.y)
+            MotionEvent.ACTION_UP -> {
+                queueEvent {
+                    mRenderer.onTouchUp(event.x-screenLocation[0], event.y-screenLocation[1])
+                }
             }
         }
         return true
     }
+
 }

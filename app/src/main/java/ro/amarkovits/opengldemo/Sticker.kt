@@ -8,20 +8,16 @@ import pl.droidsonroids.gif.GifTexImage2D
 import pl.droidsonroids.gif.InputSource
 import java.nio.Buffer
 
-class Sticker(resources: Resources, gifId: Int, var x: Float, var y: Float) {
+class Sticker(val gifTexImage2D: GifTexImage2D, val name: String) {
 
     val TAG = Sticker::class.java.simpleName
 
-    lateinit var gifTexImage2D: GifTexImage2D
-    lateinit var gifTexImage2DProgram: GifTexImage2DProgram
-    lateinit var position: RectF
+    val gifTexImage2DProgram = GifTexImage2DProgram(gifTexImage2D)
+    val position = RectF(0f, 0f, gifTexImage2D.width.toFloat(), gifTexImage2D.height.toFloat())
     lateinit var verticesBuffer: Buffer
 
     init {
-        gifTexImage2D = GifTexImage2D(InputSource.ResourcesSource(resources, gifId), GifOptions())
         gifTexImage2D.startDecoderThread()
-        gifTexImage2DProgram = GifTexImage2DProgram(gifTexImage2D)
-        position = RectF(0f, 0f, gifTexImage2D.width.toFloat(), gifTexImage2D.height.toFloat())
         updateVerticesBuffer()
     }
 
