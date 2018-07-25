@@ -1,18 +1,13 @@
 package ro.amarkovits.opengldemo
 
 import android.opengl.GLES20.*
-import android.util.Log
-import android.widget.ImageView
-import android.widget.ImageView.ScaleType.FIT_CENTER
-import android.widget.ImageView.ScaleType.FIT_XY
 import org.intellij.lang.annotations.Language
 import pl.droidsonroids.gif.GifTexImage2D
 import java.nio.Buffer
-import java.nio.FloatBuffer
 
-class GifTexImage2DProgram(private val gifTexImage2D: GifTexImage2D) {
+class GitTextImage2DRenderer(private val gifTexImage2D: GifTexImage2D) {
 
-    private val TAG = GifTexImage2DProgram::class.java.simpleName
+    private val TAG = GitTextImage2DRenderer::class.java.simpleName
 
     private val U_MATRIX = "u_Matrix"
 
@@ -24,7 +19,7 @@ class GifTexImage2DProgram(private val gifTexImage2D: GifTexImage2D) {
     private var positionLocation = -1
     private var textureLocation = -1
     private var coordinateLocation = -1
-    private var uMatrixPosition = -1
+    private var uMatrixLocation = -1
 
     @Language("GLSL")
     private val vertexShaderCode = """
@@ -72,10 +67,12 @@ class GifTexImage2DProgram(private val gifTexImage2D: GifTexImage2D) {
         glLinkProgram(program)
         glDeleteShader(pixelShader)
         glDeleteShader(vertexShader)
+
+        //locations
         positionLocation = glGetAttribLocation(program, "position")
         textureLocation = glGetUniformLocation(program, "texture")
         coordinateLocation = glGetAttribLocation(program, "coordinate")
-        uMatrixPosition = glGetUniformLocation(program, "u_matrix")
+        uMatrixLocation = glGetUniformLocation(program, "u_matrix")
     }
 
 
@@ -88,11 +85,9 @@ class GifTexImage2DProgram(private val gifTexImage2D: GifTexImage2D) {
         glVertexAttribPointer(coordinateLocation, 2, GL_FLOAT, false, 0, textureBuffer)
         glEnableVertexAttribArray(positionLocation)
         glVertexAttribPointer(positionLocation, 2, GL_FLOAT, false, 0, vertices)
-        glUniformMatrix4fv(uMatrixPosition, 1, false, projectionMatrix, 0)
+        glUniformMatrix4fv(uMatrixLocation, 1, false, projectionMatrix, 0)
         gifTexImage2D.glTexSubImage2D(GL_TEXTURE_2D, 0)
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
     }
-
-    fun destroy() = gifTexImage2D.recycle()
 }
 

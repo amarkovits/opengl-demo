@@ -1,18 +1,15 @@
 package ro.amarkovits.opengldemo
 
-import android.content.res.Resources
 import android.graphics.RectF
 import android.util.Log
-import pl.droidsonroids.gif.GifOptions
 import pl.droidsonroids.gif.GifTexImage2D
-import pl.droidsonroids.gif.InputSource
 import java.nio.Buffer
 
 class Sticker(val gifTexImage2D: GifTexImage2D, val name: String) {
 
     val TAG = Sticker::class.java.simpleName
 
-    val gifTexImage2DProgram = GifTexImage2DProgram(gifTexImage2D)
+    val gifTexImage2DProgram = GitTextImage2DRenderer(gifTexImage2D)
     val position = RectF(0f, 0f, gifTexImage2D.width.toFloat(), gifTexImage2D.height.toFloat())
     lateinit var verticesBuffer: Buffer
 

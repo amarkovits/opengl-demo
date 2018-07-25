@@ -4,9 +4,11 @@ import android.graphics.PointF
 import android.opengl.GLES20
 import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLSurfaceView
+import android.opengl.Matrix
 import javax.microedition.khronos.egl.EGLConfig
 import android.opengl.Matrix.orthoM
 import android.util.Log
+import java.nio.ByteBuffer
 import java.util.*
 
 
@@ -22,8 +24,9 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     private var selectedSticker: Sticker? = null
 
     private val touchStartPoint = PointF(0f, 0f)
-
     private var minMovement = 1f
+
+    private var viewPortHeight = 0
 
     fun addSticker(sticker: Sticker) {
         stickers.add(sticker)
@@ -60,6 +63,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
         Log.d(TAG, "onSurfaceChanged $width $height")
+        viewPortHeight = height
 
         GLES20.glViewport(0, 0, width, height)
 
@@ -80,16 +84,26 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
     fun onTouchDown(x: Float, y: Float) {
         Log.d(TAG, "onTouchDown $x $y")
-        selectedSticker = stickers.asReversed().find {
-            it.isSelectable(x, y)
-        }
-        if (selectedSticker != null) {
-            Log.d(TAG, "selectedSticker=${selectedSticker?.name}")
-            //bring the selected sticker to the front
-            stickers.remove(selectedSticker!!)
-            stickers.add(selectedSticker!!)
-            //keep the touch start position to calculate translation
-            touchStartPoint.set(x, y)
+
+        //check for transparency
+        val buffer = ByteBuffer.allocate(4)
+        GLES20.glReadPixels(x.toInt(), viewPortHeight-y.toInt(), 1, 1, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, buffer)
+        Log.d(TAG, "color: ${buffer[0]} ${buffer[1]} ${buffer[2]} ${buffer[3]}")
+
+        if ((buffer[0].toInt() != 127 || buffer[1].toInt()!=127 || buffer[2].toInt()!=127)) {
+            selectedSticker = stickers.asReversed().find {
+                it.isSelectable(x, y)
+            }
+            if (selectedSticker != null) {
+                Log.d(TAG, "selectedSticker=${selectedSticker?.name}")
+                //bring the selected sticker to the front
+                stickers.remove(selectedSticker!!)
+                stickers.add(selectedSticker!!)
+                //keep the touch start position to calculate translation
+                touchStartPoint.set(x, y)
+            }
+        }else{
+            Log.d(TAG, "transparent zone")
         }
     }
 
