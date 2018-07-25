@@ -61,6 +61,12 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
         orthoM(mProjectionMatrix, 0, 0f, width.toFloat(), height.toFloat(), 0f, -1f, 1f)
 
+        //when the surface is changed put the stickers randomly on the screen
+        val random = Random()
+        stickers.forEach {
+            it.setCenter(random.nextInt(width).toFloat(), random.nextInt(height).toFloat())
+        }
+
         Log.d(TAG, "mProjectionMatrix ${Arrays.toString(mProjectionMatrix)}")
 
     }
