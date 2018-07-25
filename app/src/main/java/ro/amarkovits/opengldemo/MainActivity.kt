@@ -53,6 +53,6 @@ internal class MyGLSurfaceView(context: Context) : GLSurfaceView(context) {
                 mRenderer.onTouchUp(event.x, event.y)
             }
         }
-        return super.onTouchEvent(event)
+        return true
     }
 }

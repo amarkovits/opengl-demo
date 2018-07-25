@@ -19,11 +19,13 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     private val mViewMatrix = FloatArray(16)
 
     private val stickers = ArrayList<Sticker>()
-    private var selectedSticker : Sticker? = null
+    private var selectedSticker: Sticker? = null
 
-    private val touchStartPoint = PointF (0f, 0f)
+    private val touchStartPoint = PointF(0f, 0f)
 
-    fun addSticker(sticker: Sticker){
+    private var minMovement = 1f
+
+    fun addSticker(sticker: Sticker) {
         stickers.add(sticker)
     }
 
@@ -67,25 +69,45 @@ class MyGLRenderer : GLSurfaceView.Renderer {
             it.setCenter(random.nextInt(width).toFloat(), random.nextInt(height).toFloat())
         }
 
+        //avoid very small drag of objects
+        minMovement = width.toFloat() / 300f
+
         Log.d(TAG, "mProjectionMatrix ${Arrays.toString(mProjectionMatrix)}")
 
     }
 
     fun onTouchDown(x: Float, y: Float) {
+        Log.d(TAG, "onTouchDown $x $y")
         selectedSticker = stickers.asReversed().find {
             it.isSelectable(x, y)
         }
-        if (selectedSticker!=null){
+        if (selectedSticker != null) {
+            //bring the selected sticker to the front
+            stickers.remove(selectedSticker!!)
+            stickers.add(selectedSticker!!)
+            //keep the touch start position to calculate translation
             touchStartPoint.set(x, y)
         }
     }
 
     fun onTouchMove(x: Float, y: Float) {
-
+        Log.d(TAG, "onTouchMove $x $y")
+        if (selectedSticker != null) {
+            val dx = x - touchStartPoint.x
+            val dy = y - touchStartPoint.y
+            if (Math.abs(dx) > minMovement && Math.abs(dy)> minMovement) {
+                selectedSticker?.translate(dx, dy)
+                //update touch start position so new translation is relative to this point
+                touchStartPoint.set(x, y)
+            }else{
+                Log.d(TAG, "insignificant movement $dx $dy")
+            }
+        }
     }
 
     fun onTouchUp(x: Float, y: Float) {
-
+        Log.d(TAG, "onTouchUp $x $y")
+        selectedSticker = null
     }
 
 
