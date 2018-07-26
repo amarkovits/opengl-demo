@@ -16,6 +16,8 @@ class Sticker(val gifTexImage2D: GifTexImage2D, val gifDrawable: GifDrawable, va
     val verticesBuffer = floatArrayOf(0f, gifTexImage2D.height.toFloat() - 1, gifTexImage2D.width.toFloat() - 1, gifTexImage2D.height.toFloat() - 1, 0f, 0f, gifTexImage2D.width.toFloat() - 1, 0f).toFloatBuffer()
     var texName = 0
     val translationMatrix = FloatArray(16)
+    val mvpMatrix = FloatArray(16)
+    lateinit var projectionMatrix : FloatArray
 
     //only used to check if the touch is inside the sticker
     val form = RectF(0f, 0f, gifTexImage2D.width.toFloat() - 1, gifTexImage2D.height.toFloat() - 1)
@@ -31,7 +33,8 @@ class Sticker(val gifTexImage2D: GifTexImage2D, val gifDrawable: GifDrawable, va
         Matrix.setIdentityM(translationMatrix, 0)
     }
 
-    fun initialize() {
+    fun initialize(projectionMatrix: FloatArray) {
+        this.projectionMatrix = projectionMatrix
         createTexture()
         Log.d(TAG, "initialized $name texName=$texName")
     }
@@ -54,10 +57,16 @@ class Sticker(val gifTexImage2D: GifTexImage2D, val gifDrawable: GifDrawable, va
     fun translate(dx: Float, dy: Float) {
         Log.d(TAG, "translatex $dx $dy")
         Matrix.translateM(translationMatrix, 0, dx, dy, 0f)
+        updateMVPMatrix()
     }
 
     fun resetPosition() {
         Matrix.setIdentityM(translationMatrix, 0)
+        updateMVPMatrix()
+    }
+
+    private fun updateMVPMatrix(){
+        Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, translationMatrix, 0)
     }
 
     private fun createTexture() {

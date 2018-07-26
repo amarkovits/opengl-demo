@@ -18,8 +18,6 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
     private val mProjectionMatrix = FloatArray(16)
 
-    private val mMVPMatrix = FloatArray(16)
-
     private val stickers = ArrayList<Sticker>()
     private var selectedSticker: Sticker? = null
 
@@ -45,7 +43,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
         gifTextImage2DRenderer.initialize()
 
         stickers.forEach {
-            it.initialize()
+            it.initialize(mProjectionMatrix)
         }
     }
 
@@ -54,8 +52,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 
         stickers.forEach {
-            Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, it.translationMatrix, 0)
-            gifTextImage2DRenderer.draw(it.gifTexImage2D, it.texName, mMVPMatrix, it.verticesBuffer)
+            gifTextImage2DRenderer.draw(it.gifTexImage2D, it.texName, it.mvpMatrix, it.verticesBuffer)
         }
 
     }
