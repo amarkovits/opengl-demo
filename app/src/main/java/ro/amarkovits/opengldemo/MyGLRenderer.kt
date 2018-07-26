@@ -4,7 +4,6 @@ import android.graphics.PointF
 import android.opengl.GLES20
 import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLSurfaceView
-import android.opengl.Matrix
 import javax.microedition.khronos.egl.EGLConfig
 import android.opengl.Matrix.orthoM
 import android.util.Log
@@ -16,9 +15,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
     val TAG = MyGLRenderer::class.java.simpleName
 
-    private val mMVPMatrix = FloatArray(16)
     private val mProjectionMatrix = FloatArray(16)
-    private val mViewMatrix = FloatArray(16)
 
     private val stickers = ArrayList<Sticker>()
     private var selectedSticker: Sticker? = null
@@ -27,6 +24,8 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     private var minMovement = 1f
 
     private var viewPortHeight = 0
+
+    private val gifTextImage2DRenderer = GitTextImage2DRenderer()
 
     fun addSticker(sticker: Sticker) {
         stickers.add(sticker)
@@ -40,6 +39,8 @@ class MyGLRenderer : GLSurfaceView.Renderer {
         GLES20.glBlendFuncSeparate(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA, GLES20.GL_ONE, GLES20.GL_ZERO)
         GLES20.glBlendEquation(GLES20.GL_FUNC_ADD)
 
+        gifTextImage2DRenderer.initialize()
+
         stickers.forEach {
             it.initialize()
         }
@@ -49,14 +50,8 @@ class MyGLRenderer : GLSurfaceView.Renderer {
         // Redraw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 
-//        // Set the camera position (View matrix)
-//        Matrix.setLookAtM(mViewMatrix, 0, 0f, 0f, -3f, 0f, 0f, 0f, 0f, 1.0f, 0.0f)
-//
-//        // Calculate the projection and view transformation
-//        Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
-
         stickers.forEach {
-            it.draw(mProjectionMatrix)
+            gifTextImage2DRenderer.draw(it.gifTexImage2D, it.texName, mProjectionMatrix, it.verticesBuffer)
         }
 
     }
@@ -87,10 +82,10 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
         //check for transparency
         val buffer = ByteBuffer.allocate(4)
-        GLES20.glReadPixels(x.toInt(), viewPortHeight-y.toInt(), 1, 1, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, buffer)
+        GLES20.glReadPixels(x.toInt(), viewPortHeight - y.toInt(), 1, 1, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, buffer)
         Log.d(TAG, "color: ${buffer[0]} ${buffer[1]} ${buffer[2]} ${buffer[3]}")
 
-        if ((buffer[0].toInt() != 127 || buffer[1].toInt()!=127 || buffer[2].toInt()!=127)) {
+        if ((buffer[0].toInt() != 127 || buffer[1].toInt() != 127 || buffer[2].toInt() != 127)) {
             selectedSticker = stickers.asReversed().find {
                 it.isSelectable(x, y)
             }
@@ -102,7 +97,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
                 //keep the touch start position to calculate translation
                 touchStartPoint.set(x, y)
             }
-        }else{
+        } else {
             Log.d(TAG, "transparent zone")
         }
     }
@@ -112,11 +107,11 @@ class MyGLRenderer : GLSurfaceView.Renderer {
         if (selectedSticker != null) {
             val dx = x - touchStartPoint.x
             val dy = y - touchStartPoint.y
-            if (Math.abs(dx) > minMovement || Math.abs(dy)> minMovement) {
+            if (Math.abs(dx) > minMovement || Math.abs(dy) > minMovement) {
                 selectedSticker?.translate(dx, dy)
                 //update touch start position so new translation is relative to this point
                 touchStartPoint.set(x, y)
-            }else{
+            } else {
                 Log.d(TAG, "insignificant movement $dx $dy")
             }
         }
