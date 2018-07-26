@@ -4,6 +4,7 @@ import android.graphics.PointF
 import android.opengl.GLES20
 import javax.microedition.khronos.opengles.GL10
 import android.opengl.GLSurfaceView
+import android.opengl.Matrix
 import javax.microedition.khronos.egl.EGLConfig
 import android.opengl.Matrix.orthoM
 import android.util.Log
@@ -16,6 +17,8 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     val TAG = MyGLRenderer::class.java.simpleName
 
     private val mProjectionMatrix = FloatArray(16)
+
+    private val mMVPMatrix = FloatArray(16)
 
     private val stickers = ArrayList<Sticker>()
     private var selectedSticker: Sticker? = null
@@ -51,7 +54,8 @@ class MyGLRenderer : GLSurfaceView.Renderer {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 
         stickers.forEach {
-            gifTextImage2DRenderer.draw(it.gifTexImage2D, it.texName, mProjectionMatrix, it.verticesBuffer)
+            Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, it.translationMatrix, 0)
+            gifTextImage2DRenderer.draw(it.gifTexImage2D, it.texName, mMVPMatrix, it.verticesBuffer)
         }
 
     }
@@ -67,7 +71,8 @@ class MyGLRenderer : GLSurfaceView.Renderer {
         //when the surface is changed put the stickers randomly on the screen
         val random = Random()
         stickers.forEach {
-            it.setCenter(random.nextInt(width).toFloat(), random.nextInt(height).toFloat())
+            it.resetPosition()
+            it.translate(random.nextInt(width*8/10).toFloat(), random.nextInt(height*8/10).toFloat())
         }
 
         //avoid very small drag of objects

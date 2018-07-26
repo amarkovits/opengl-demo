@@ -2,6 +2,7 @@ package ro.amarkovits.opengldemo
 
 import android.graphics.RectF
 import android.opengl.GLES20
+import android.opengl.Matrix
 import android.util.Log
 import pl.droidsonroids.gif.GifTexImage2D
 import java.nio.Buffer
@@ -10,13 +11,16 @@ class Sticker(val gifTexImage2D: GifTexImage2D, val name: String) {
 
     val TAG = Sticker::class.java.simpleName
 
-    val position = RectF(0f, 0f, gifTexImage2D.width.toFloat(), gifTexImage2D.height.toFloat())
-    lateinit var verticesBuffer: Buffer
+    val verticesBuffer = floatArrayOf(0f, gifTexImage2D.height.toFloat(), gifTexImage2D.width.toFloat(), gifTexImage2D.height.toFloat(), 0f, 0f, gifTexImage2D.width.toFloat(), 0f).toFloatBuffer()
     var texName = 0
+    val translationMatrix = FloatArray(16)
+    val inverseMatrix = FloatArray(16)
+    val inversePosition = FloatArray(4)
+    val touchPosition = floatArrayOf(0f, 0f, 0f, 1f)
 
     init {
         gifTexImage2D.startDecoderThread()
-        updateVerticesBuffer()
+        Matrix.setIdentityM(translationMatrix, 0)
     }
 
     fun initialize() {
@@ -25,28 +29,23 @@ class Sticker(val gifTexImage2D: GifTexImage2D, val name: String) {
     }
 
     fun isSelectable(x: Float, y: Float): Boolean {
-        return position.contains(x, y)
+        touchPosition[0] = x
+        touchPosition[1] = y
+        Matrix.invertM(inverseMatrix, 0, translationMatrix, 0)
+        Matrix.multiplyMV(inversePosition, 0, inverseMatrix, 0, touchPosition, 0)
+        return inversePosition[0] >= 0 && inversePosition[1] >= 0 && inversePosition[0] <= gifTexImage2D.width && inversePosition[1] <= gifTexImage2D.height
     }
 
     fun translate(dx: Float, dy: Float) {
         Log.d(TAG, "translatex $dx $dy")
-        position.set(position.left + dx, position.top + dy, position.right + dx, position.bottom + dy)
-        updateVerticesBuffer()
+        Matrix.translateM(translationMatrix, 0, dx, dy, 0f)
     }
 
-    //set the position of the sticker on the screen (x,y are the center of the sticker)
-    fun setCenter(cx: Float, cy: Float) {
-        val width = gifTexImage2D.width.toFloat()
-        val height = gifTexImage2D.height.toFloat()
-        position.set(cx - width / 2, cy - height / 2, cx + width / 2, cy + height / 2)
-        updateVerticesBuffer()
+    fun resetPosition() {
+        Matrix.setIdentityM(translationMatrix, 0)
     }
 
-    private fun updateVerticesBuffer(){
-        verticesBuffer = floatArrayOf(position.left, position.bottom, position.right, position.bottom, position.left, position.top, position.right, position.top).toFloatBuffer()
-    }
-
-    private fun createTexture(){
+    private fun createTexture() {
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0)
         val texNames = intArrayOf(0)
         GLES20.glGenTextures(1, texNames, 0)
