@@ -69,7 +69,7 @@ class MyGLRenderer : GLSurfaceView.Renderer {
         val random = Random()
         stickers.forEach {
             it.resetPosition()
-            it.translate(random.nextInt(width*8/10).toFloat(), random.nextInt(height*8/10).toFloat())
+            it.translate(random.nextInt(width * 8 / 10).toFloat(), random.nextInt(height * 8 / 10).toFloat())
         }
 
         //avoid very small drag of objects
@@ -80,32 +80,19 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     }
 
     fun onTouchDown(x: Float, y: Float) {
-        Log.d(TAG, "onTouchDown $x $y")
-
-        //check for transparency
-        val buffer = ByteBuffer.allocate(4)
-        GLES20.glReadPixels(x.toInt(), viewPortHeight - y.toInt(), 1, 1, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, buffer)
-        Log.d(TAG, "color: ${buffer[0]} ${buffer[1]} ${buffer[2]} ${buffer[3]}")
-
-        if ((buffer[0].toInt() != 127 || buffer[1].toInt() != 127 || buffer[2].toInt() != 127)) {
-            selectedSticker = stickers.asReversed().find {
-                it.isSelectable(x, y)
-            }
-            if (selectedSticker != null) {
-                Log.d(TAG, "selectedSticker=${selectedSticker?.name}")
-                //bring the selected sticker to the front
-                stickers.remove(selectedSticker!!)
-                stickers.add(selectedSticker!!)
-                //keep the touch start position to calculate translation
-                touchStartPoint.set(x, y)
-            }
-        } else {
-            Log.d(TAG, "transparent zone")
+        selectedSticker = stickers.asReversed().find {
+            it.isSelectable(x, y)
+        }
+        if (selectedSticker != null) {
+            //bring the selected sticker to the front
+            stickers.remove(selectedSticker!!)
+            stickers.add(selectedSticker!!)
+            //keep the touch start position to calculate translation
+            touchStartPoint.set(x, y)
         }
     }
 
     fun onTouchMove(x: Float, y: Float) {
-//        Log.d(TAG, "onTouchMove $x $y")
         if (selectedSticker != null) {
             val dx = x - touchStartPoint.x
             val dy = y - touchStartPoint.y
@@ -113,14 +100,11 @@ class MyGLRenderer : GLSurfaceView.Renderer {
                 selectedSticker?.translate(dx, dy)
                 //update touch start position so new translation is relative to this point
                 touchStartPoint.set(x, y)
-            } else {
-                Log.d(TAG, "insignificant movement $dx $dy")
             }
         }
     }
 
     fun onTouchUp(x: Float, y: Float) {
-        Log.d(TAG, "onTouchUp $x $y")
         selectedSticker = null
     }
 

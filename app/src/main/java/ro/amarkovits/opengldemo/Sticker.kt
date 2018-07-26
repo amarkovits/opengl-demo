@@ -36,7 +36,6 @@ class Sticker(val gifTexImage2D: GifTexImage2D, val gifDrawable: GifDrawable, va
     fun initialize(projectionMatrix: FloatArray) {
         this.projectionMatrix = projectionMatrix
         createTexture()
-        Log.d(TAG, "initialized $name texName=$texName")
     }
 
     fun isSelectable(x: Float, y: Float): Boolean {
@@ -55,7 +54,6 @@ class Sticker(val gifTexImage2D: GifTexImage2D, val gifDrawable: GifDrawable, va
     }
 
     fun translate(dx: Float, dy: Float) {
-        Log.d(TAG, "translatex $dx $dy")
         Matrix.translateM(translationMatrix, 0, dx, dy, 0f)
         updateMVPMatrix()
     }
