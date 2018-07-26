@@ -14,9 +14,14 @@ class Sticker(val gifTexImage2D: GifTexImage2D, val name: String) {
     val verticesBuffer = floatArrayOf(0f, gifTexImage2D.height.toFloat(), gifTexImage2D.width.toFloat(), gifTexImage2D.height.toFloat(), 0f, 0f, gifTexImage2D.width.toFloat(), 0f).toFloatBuffer()
     var texName = 0
     val translationMatrix = FloatArray(16)
-    val inverseMatrix = FloatArray(16)
-    val inversePosition = FloatArray(4)
-    val touchPosition = floatArrayOf(0f, 0f, 0f, 1f)
+
+    //only used to check if the touch is inside the sticker
+    val form = RectF(0f, 0f, gifTexImage2D.width.toFloat(), gifTexImage2D.height.toFloat())
+
+    //preallocated structures so we don't allocate arrats and matrices every time
+    private val inverseMatrix = FloatArray(16)
+    private val inversePosition = FloatArray(4)
+    private val touchPosition = floatArrayOf(0f, 0f, 0f, 1f)
 
     init {
         gifTexImage2D.startDecoderThread()
@@ -33,7 +38,7 @@ class Sticker(val gifTexImage2D: GifTexImage2D, val name: String) {
         touchPosition[1] = y
         Matrix.invertM(inverseMatrix, 0, translationMatrix, 0)
         Matrix.multiplyMV(inversePosition, 0, inverseMatrix, 0, touchPosition, 0)
-        return inversePosition[0] >= 0 && inversePosition[1] >= 0 && inversePosition[0] <= gifTexImage2D.width && inversePosition[1] <= gifTexImage2D.height
+        return form.contains(inversePosition[0], inversePosition[1])
     }
 
     fun translate(dx: Float, dy: Float) {
