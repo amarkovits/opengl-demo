@@ -7,6 +7,7 @@ import android.opengl.GLSurfaceView
 import android.support.v4.view.MotionEventCompat
 import android.view.MotionEvent
 import android.view.View
+import pl.droidsonroids.gif.GifDrawable
 import pl.droidsonroids.gif.GifOptions
 import pl.droidsonroids.gif.GifTexImage2D
 import pl.droidsonroids.gif.InputSource
@@ -35,11 +36,11 @@ internal class MyGLSurfaceView(context: Context) : GLSurfaceView(context) {
         setEGLContextClientVersion(2)
 
         mRenderer = MyGLRenderer()
-        mRenderer.addSticker(Sticker(GifTexImage2D(InputSource.ResourcesSource(resources, R.drawable.sticker1), GifOptions()), "sticker1"))
-        mRenderer.addSticker(Sticker(GifTexImage2D(InputSource.ResourcesSource(resources, R.drawable.sticker2), GifOptions()), "sticker2"))
-        mRenderer.addSticker(Sticker(GifTexImage2D(InputSource.ResourcesSource(resources, R.drawable.sticker3), GifOptions()), "sticker3"))
-        mRenderer.addSticker(Sticker(GifTexImage2D(InputSource.ResourcesSource(resources, R.drawable.sticker4), GifOptions()), "sticker4"))
-        mRenderer.addSticker(Sticker(GifTexImage2D(InputSource.ResourcesSource(resources, R.drawable.sticker5), GifOptions()), "sticker5"))
+        mRenderer.addSticker(Sticker(GifTexImage2D(InputSource.ResourcesSource(resources, R.drawable.sticker1), GifOptions()), GifDrawable(resources, R.drawable.sticker1), "sticker1"))
+        mRenderer.addSticker(Sticker(GifTexImage2D(InputSource.ResourcesSource(resources, R.drawable.sticker2), GifOptions()), GifDrawable(resources, R.drawable.sticker2),"sticker2"))
+        mRenderer.addSticker(Sticker(GifTexImage2D(InputSource.ResourcesSource(resources, R.drawable.sticker3), GifOptions()), GifDrawable(resources, R.drawable.sticker3),"sticker3"))
+        mRenderer.addSticker(Sticker(GifTexImage2D(InputSource.ResourcesSource(resources, R.drawable.sticker4), GifOptions()), GifDrawable(resources, R.drawable.sticker4),"sticker4"))
+        mRenderer.addSticker(Sticker(GifTexImage2D(InputSource.ResourcesSource(resources, R.drawable.sticker5), GifOptions()), GifDrawable(resources, R.drawable.sticker5),"sticker5"))
 
         // Set the Renderer for drawing on the GLSurfaceView
         setRenderer(mRenderer)

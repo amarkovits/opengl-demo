@@ -1,22 +1,24 @@
 package ro.amarkovits.opengldemo
 
+import android.graphics.Color
 import android.graphics.RectF
 import android.opengl.GLES20
 import android.opengl.Matrix
 import android.util.Log
+import pl.droidsonroids.gif.GifDrawable
 import pl.droidsonroids.gif.GifTexImage2D
 import java.nio.Buffer
 
-class Sticker(val gifTexImage2D: GifTexImage2D, val name: String) {
+class Sticker(val gifTexImage2D: GifTexImage2D, val gifDrawable: GifDrawable, val name: String) {
 
     val TAG = Sticker::class.java.simpleName
 
-    val verticesBuffer = floatArrayOf(0f, gifTexImage2D.height.toFloat(), gifTexImage2D.width.toFloat(), gifTexImage2D.height.toFloat(), 0f, 0f, gifTexImage2D.width.toFloat(), 0f).toFloatBuffer()
+    val verticesBuffer = floatArrayOf(0f, gifTexImage2D.height.toFloat() - 1, gifTexImage2D.width.toFloat() - 1, gifTexImage2D.height.toFloat() - 1, 0f, 0f, gifTexImage2D.width.toFloat() - 1, 0f).toFloatBuffer()
     var texName = 0
     val translationMatrix = FloatArray(16)
 
     //only used to check if the touch is inside the sticker
-    val form = RectF(0f, 0f, gifTexImage2D.width.toFloat(), gifTexImage2D.height.toFloat())
+    val form = RectF(0f, 0f, gifTexImage2D.width.toFloat() - 1, gifTexImage2D.height.toFloat() - 1)
 
     //preallocated structures so we don't allocate arrats and matrices every time
     private val inverseMatrix = FloatArray(16)
@@ -24,6 +26,7 @@ class Sticker(val gifTexImage2D: GifTexImage2D, val name: String) {
     private val touchPosition = floatArrayOf(0f, 0f, 0f, 1f)
 
     init {
+        gifDrawable.stop()
         gifTexImage2D.startDecoderThread()
         Matrix.setIdentityM(translationMatrix, 0)
     }
@@ -38,6 +41,13 @@ class Sticker(val gifTexImage2D: GifTexImage2D, val name: String) {
         touchPosition[1] = y
         Matrix.invertM(inverseMatrix, 0, translationMatrix, 0)
         Matrix.multiplyMV(inversePosition, 0, inverseMatrix, 0, touchPosition, 0)
+        if (form.contains(inversePosition[0], inversePosition[1])) {
+            gifDrawable.seekToFrameAndGet(gifTexImage2D.currentFrameIndex)
+            return Color.alpha(gifDrawable.getPixel(inversePosition[0].toInt(), inversePosition[1].toInt())) >
+                    0
+        } else {
+            return false
+        }
         return form.contains(inversePosition[0], inversePosition[1])
     }
 
