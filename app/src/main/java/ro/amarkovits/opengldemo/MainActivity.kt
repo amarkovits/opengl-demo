@@ -4,9 +4,7 @@ import android.content.Context
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.opengl.GLSurfaceView
-import android.support.v4.view.MotionEventCompat
 import android.view.MotionEvent
-import android.view.View
 import pl.droidsonroids.gif.GifDrawable
 import pl.droidsonroids.gif.GifOptions
 import pl.droidsonroids.gif.GifTexImage2D

@@ -5,6 +5,9 @@ import org.intellij.lang.annotations.Language
 import pl.droidsonroids.gif.GifTexImage2D
 import java.nio.Buffer
 
+/**
+ * This class is responsibile for rendering gifs
+ */
 class GitTextImage2DRenderer() {
 
     private val TAG = GitTextImage2DRenderer::class.java.simpleName

@@ -24,8 +24,6 @@ class MyGLRenderer : GLSurfaceView.Renderer {
     private val touchStartPoint = PointF(0f, 0f)
     private var minMovement = 1f
 
-    private var viewPortHeight = 0
-
     private val gifTextImage2DRenderer = GitTextImage2DRenderer()
 
     fun addSticker(sticker: Sticker) {
@@ -59,7 +57,6 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
         Log.d(TAG, "onSurfaceChanged $width $height")
-        viewPortHeight = height
 
         GLES20.glViewport(0, 0, width, height)
 
@@ -74,8 +71,6 @@ class MyGLRenderer : GLSurfaceView.Renderer {
 
         //avoid very small drag of objects
         minMovement = width.toFloat() / 300f
-
-        Log.d(TAG, "mProjectionMatrix ${Arrays.toString(mProjectionMatrix)}")
 
     }
 
