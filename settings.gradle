@@ -1,1 +1,6 @@
-include ':app'
+include ':app', ':giphy-android-sdk-creation', ':ffmpeg', ':ffmpeg-development-kit'
+
+project(':giphy-android-sdk-creation').projectDir = new File(settingsDir, '../giphy-android-sdk-creation/sdk')
+project(':ffmpeg').projectDir = new File(settingsDir, '../giphy-android-sdk-creation/ffmpeg')
+project(':ffmpeg-development-kit').projectDir = new File(settingsDir, '../FFmpeg-Development-Kit')
+
