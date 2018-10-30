@@ -46,6 +46,10 @@ class MainActivity : AppCompatActivity() {
         cameraView?.setOnClickListener {
             filter = when(filter){
                 Filter.NONE -> Filter.CRYSTAL
+                Filter.CRYSTAL -> Filter.FILM
+                Filter.FILM -> Filter.GEO
+                Filter.GEO -> Filter.RAINBOW
+                Filter.RAINBOW -> Filter.BARREL
                 else -> Filter.NONE
             }
             cameraController?.applyFilter(filter)
