@@ -1,30 +1,22 @@
 package ro.amarkovits.opengldemo
 
-import android.content.Context
-import android.graphics.BitmapFactory
 import android.net.Uri
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.opengl.GLSurfaceView
-import android.view.MotionEvent
+import android.os.Handler
+import android.support.v7.app.AppCompatActivity
 import com.giphy.sdk.creation.camera.CameraController
 import com.giphy.sdk.creation.hardware.CameraView
-import com.giphy.sdk.creation.image.BitmapInfo
 import com.giphy.sdk.creation.model.Filter
 import com.giphy.sdk.creation.model.MediaBundle
-import pl.droidsonroids.gif.GifDrawable
-import pl.droidsonroids.gif.GifOptions
-import pl.droidsonroids.gif.GifTexImage2D
-import pl.droidsonroids.gif.InputSource
 
 
 class MainActivity : AppCompatActivity() {
 
 //    private var mGLView: GLSurfaceView? = null
 
-    private var cameraView : CameraView? = null
+    private var cameraView: CameraView? = null
     private var cameraController: CameraController? = null
-    private var mediaBundle : MediaBundle? = null
+    private var mediaBundle: MediaBundle? = null
 
     var filter = Filter.NONE
 
@@ -34,29 +26,42 @@ class MainActivity : AppCompatActivity() {
 //        mGLView = MyGLSurfaceView(this)
 
         cameraView = CameraView(this, null)
+
+        cameraView?.setOnTouchListener { v, event ->
+            cameraController?.handleFilterTouchEvent(v, event)
+            true
+        }
+
         cameraController = CameraController(cameraView!!)
 
         mediaBundle = MediaBundle.PickedVideoMediaBundle(Uri.parse("file:///android_asset/video.mp4"), cameraController!!)
-//        mediaBundle = MediaBundle.ImageMediaBundle(BitmapInfo(BitmapFactory.decodeResource(resources, R.drawable.ic_launcher), 0f), cameraController!!)
+//        mediaBundle = MediaBundle.ImageMediaBundle(BitmapInfo(BitmapFactory.decodeResource(resources, R.drawable.gmi8l18), 270f), cameraController!!)
         mediaBundle?.playMedia()
+
 
 //        cameraController?.addSticker(GifTexImage2D(InputSource.ResourcesSource(resources, R.drawable.sticker1), GifOptions()), Uri.EMPTY)
 //        cameraController?.addSticker(GifTexImage2D(InputSource.ResourcesSource(resources, R.drawable.sticker2), GifOptions()), Uri.EMPTY)
 
-        cameraView?.setOnClickListener {
-            filter = when(filter){
-                Filter.NONE -> Filter.CRYSTAL
-                Filter.CRYSTAL -> Filter.FILM
-                Filter.FILM -> Filter.GEO
-                Filter.GEO -> Filter.RAINBOW
-                Filter.RAINBOW -> Filter.BARREL
-                else -> Filter.NONE
-            }
-            cameraController?.applyFilter(filter)
-        }
+//        cameraView?.setOnClickListener {
+//            filter = when (filter) {
+//                Filter.NONE -> Filter.GEO
+////                Filter.POP -> Filter.CRYSTAL
+////                Filter.CRYSTAL -> Filter.FILM
+////                Filter.FILM -> Filter.GEO
+////                Filter.GEO -> Filter.RAINBOW
+////                Filter.RAINBOW -> Filter.BARREL
+//                else -> Filter.NONE
+//            }
+//            cameraController?.applyFilter(filter)
+//        }
 
         setContentView(cameraView)
 
+        cameraController?.applyFilter(Filter.GEO)
+
+        Handler().postDelayed({
+
+        }, 5000)
     }
 }
 
