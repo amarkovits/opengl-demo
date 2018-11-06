@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(cameraView)
 
-        cameraController?.applyFilter(Filter.GEO)
+        cameraController?.applyFilter(Filter.RAINBOW)
 
         Handler().postDelayed({
 
