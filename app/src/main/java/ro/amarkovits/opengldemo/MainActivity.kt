@@ -1,8 +1,11 @@
 package ro.amarkovits.opengldemo
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import com.giphy.sdk.creation.camera.CameraController
 import com.giphy.sdk.creation.hardware.CameraView
@@ -23,6 +26,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 1234)
+        }
 //        mGLView = MyGLSurfaceView(this)
 
         cameraView = CameraView(this, null)
@@ -35,7 +43,9 @@ class MainActivity : AppCompatActivity() {
         cameraController = CameraController(cameraView!!)
 
         mediaBundle = MediaBundle.PickedVideoMediaBundle(Uri.parse("file:///android_asset/video.mp4"), cameraController!!)
+//        mediaBundle = MediaBundle.GifMediaBundle(Uri.fromFile(File("/sdcard/giphy.gif")), cameraController!!)
 //        mediaBundle = MediaBundle.ImageMediaBundle(BitmapInfo(BitmapFactory.decodeResource(resources, R.drawable.gmi8l18), 270f), cameraController!!)
+//        mediaBundle = MediaBundle.PickedVideoMediaBundle(Uri.parse("file:///android_asset/record5.mp4"), cameraController!!)
         mediaBundle?.playMedia()
 
 
@@ -57,11 +67,11 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(cameraView)
 
-        cameraController?.applyFilter(Filter.RAINBOW)
+        cameraController?.applyFilter(Filter.FILM)
 
-        Handler().postDelayed({
+//        Handler().postDelayed({ cameraController?.setGifBackground(GifTexImage2D(InputSource.FileSource("/sdcard/snow.gif"), GifOptions())) }, 2000)
 
-        }, 5000)
+
     }
 }
 
