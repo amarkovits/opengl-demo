@@ -8,9 +8,14 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import com.giphy.sdk.creation.camera.CameraController
+import com.giphy.sdk.creation.camera.program.GifLoader
+import com.giphy.sdk.creation.camera.program.ResourceManager
 import com.giphy.sdk.creation.hardware.CameraView
 import com.giphy.sdk.creation.model.Filter
 import com.giphy.sdk.creation.model.MediaBundle
+import pl.droidsonroids.gif.GifOptions
+import pl.droidsonroids.gif.GifTexImage2D
+import pl.droidsonroids.gif.InputSource
 
 
 class MainActivity : AppCompatActivity() {
@@ -67,7 +72,16 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(cameraView)
 
-        cameraController?.applyFilter(Filter.ECHO)
+        ResourceManager.instance.gifLoader = object : GifLoader {
+            override fun loadGif(url: String, onSuccess: (GifTexImage2D) -> Unit) {
+                val gif = GifTexImage2D(InputSource.ResourcesSource(resources, url.toInt()), GifOptions())
+                onSuccess.invoke(gif)
+            }
+        }
+
+        ResourceManager.instance.cloudBackgroundsUrl = listOf("${R.drawable.snow}", "${R.drawable.blue}", "${R.drawable.boreal}")
+
+        cameraController?.applyFilter(Filter.CHROMA)
 
 //        Handler().postDelayed({ cameraController?.setGifBackground(GifTexImage2D(InputSource.FileSource("/sdcard/snow.gif"), GifOptions())) }, 2000)
 
