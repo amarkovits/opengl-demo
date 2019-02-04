@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(cameraView)
 
-        cameraController?.applyFilter(Filter.GEO)
+        cameraController?.applyFilter(Filter.ECHO)
 
 //        Handler().postDelayed({ cameraController?.setGifBackground(GifTexImage2D(InputSource.FileSource("/sdcard/snow.gif"), GifOptions())) }, 2000)
 
