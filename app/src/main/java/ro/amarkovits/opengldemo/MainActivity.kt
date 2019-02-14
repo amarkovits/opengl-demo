@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
 
         ResourceManager.instance.cloudBackgroundsUrl = listOf("${R.drawable.snow}", "${R.drawable.blue}", "${R.drawable.boreal}")
 
-        cameraController?.applyFilter(Filter.CHROMA)
+        cameraController?.applyFilter(Filter.LUMA)
 
 //        Handler().postDelayed({ cameraController?.setGifBackground(GifTexImage2D(InputSource.FileSource("/sdcard/snow.gif"), GifOptions())) }, 2000)
 
